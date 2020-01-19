@@ -12,6 +12,7 @@ import (
 
 const (
 	Topic = "owntracks/zlaaxmtf/A481FF15-8C60-4118-BE0A-9A0E6554A63C"
+	// mqtt://zlaaxmtf:_rTbTI7V_Sxm@farmer.cloudmqtt.com:31352
 )
 
 func connect(clientId string, uri *url.URL) mqtt.Client {
@@ -43,7 +44,7 @@ func listen(uri *url.URL, topic string) {
 	fmt.Printf("client connected now listening on: [%s]\n", uri)
 	fmt.Println("Topic is : ",topic)
 	client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
-		fmt.Printf("* [%s]:[%s] %s\n", msg.Topic(), string(msg.Payload()))
+		fmt.Printf("* [%s]:[%s]\n", msg.Topic(), string(msg.Payload()))
 	})
 }
 
@@ -51,7 +52,7 @@ func main() {
 	// Make sure env variable MQTT_URL is set or use .env file
 	mqtt_uri, err := url.Parse(os.Getenv("MQTT_URL"))
 	if err != nil {
-		fmt.Println("error entered ...")
+		fmt.Println("error entered ...", mqtt_uri)
 		log.Fatal(err)
 	}
 
