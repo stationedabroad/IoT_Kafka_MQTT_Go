@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/stationedabroad/go-kafka-avro"
 	"workspace/mqtt"
@@ -66,25 +67,26 @@ func main() {
 		if err != nil {
 			log.Fatalf("Unmarshalling error: %v\n", err)
 		}
-		fmt.Printf("Received message:\n%v-%v", mqttLocation.Batt, mqttLocation.Long)
+		SendMessage(producer, mqttLocation)
+		// fmt.Printf("Received message:\n%v-%v", mqttLocation.Batt, mqttLocation.Long)
 	}
-	SendMessage(producer, schema)
 }
 
-func SendMessage(producer *kafka.AvroProducer, schema string) {
-	// message := `{
-	// 	"batteryStatus": "",
-	// 	"longitude": "",
-	// 	"accuracy": "",
-	// 	"barometricPressure": "",
-	// 	"bateryStatus": "",
-	// 	"verticalAccuracy": "",
-	// 	"latitude": "",
-	// 	"trigger": "",
-	// 	connectivity": "",
-	// 	"timestamp": "",
-	// 	"altitude": "",
-	// 	"trackerId": ""
-	// }`
-	// fmt.Println(message)	
+func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
+	message := fmt.Sprintf(`{
+		"batteryStatus": %d,
+		"longitude": %f,
+		"accuracy": %d,
+		"barometricPressure": %f,
+		"bateryStatus": %d,
+		"verticalAccuracy": %d,
+		"latitude": %f,
+		"trigger": %s,
+		connectivity": %s,
+		"timestamp": %v,
+		"altitude": %d,
+		"trackerId": %s
+	}`, loc.Batt, loc.Long, loc.Acc, loc.P, loc.BS, loc.Vac, loc.Latt, loc.T, loc.Conn, loc.Tst, loc.Alt, loc.Tid)
+	key := time.Now().String()
+	fmt.Println(message)	
 }
