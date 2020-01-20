@@ -2,7 +2,13 @@ package main
 
 import ( 
 	"fmt"
+	"encoding/json"
+	"log"
+	"net/url"
+	"os"
+
 	"github.com/stationedabroad/go-kafka-avro"
+	"workspace/mqtt"
 )
 
 const (
@@ -27,6 +33,9 @@ const (
 			{"name": "trackerId", "type": "string"}
 		]
 	}`
+
+	topic = "owntracks/zlaaxmtf/A481FF15-8C60-4118-BE0A-9A0E6554A63C"
+	// mqtt://zlaaxmtf:_rTbTI7V_Sxm@farmer.cloudmqtt.com:31352
 )
 
 var kafkaServers = []string{kafka1}
@@ -37,24 +46,45 @@ func main() {
 	if err != nil {
 		fmt.Printf("could not create producer: %s, error: %v", kafka1, err)
 	}
-	fmt.Println(fmt.Sprintf("%T", *producer))
-	fmt.Println(schema)
+	fmt.Println(fmt.Sprintf("%T\n", *producer))
+
+	// Set the mqtt listener Go'ing
+	mqttUri, err := url.Parse(os.Getenv("MQTT_URL"))
+	if err != nil {
+		log.Fatalf("mqtt uri error: %v\n", err)
+	}
+	mqttClient := mqtt.NewMqttReceiver("sub", mqttUri)
+	topicChannel := make(chan []byte)
+	go mqttClient.Listen(topic, topicChannel)
+
+	// Set the Kafka-receiver Go'ing
+	var mqttLocation mqtt.MqttLocation
+	for {
+		recvdMsg := <-topicChannel
+		fmt.Println(string(recvdMsg))
+		err := json.Unmarshal(recvdMsg, &mqttLocation)
+		if err != nil {
+			log.Fatalf("Unmarshalling error: %v\n", err)
+		}
+		fmt.Printf("Received message:\n%v-%v", mqttLocation.Batt, mqttLocation.Long)
+	}
+	SendMessage(producer, schema)
 }
 
 func SendMessage(producer *kafka.AvroProducer, schema string) {
-	message := `{
-		"batteryStatus": "",
-		"longitude": "",
-		"accuracy": "",
-		"barometricPressure": "",
-		"bateryStatus": "",
-		"verticalAccuracy": "",
-		"latitude": "",
-		"trigger": "",
-		connectivity": "",
-		"timestamp": "",
-		"altitude": "",
-		"trackerId": ""
-	}`
-	fmt.Println(message)	
+	// message := `{
+	// 	"batteryStatus": "",
+	// 	"longitude": "",
+	// 	"accuracy": "",
+	// 	"barometricPressure": "",
+	// 	"bateryStatus": "",
+	// 	"verticalAccuracy": "",
+	// 	"latitude": "",
+	// 	"trigger": "",
+	// 	connectivity": "",
+	// 	"timestamp": "",
+	// 	"altitude": "",
+	// 	"trackerId": ""
+	// }`
+	// fmt.Println(message)	
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"encoding/json"
 	"log"
 	"net/url"
 	"time"
@@ -17,9 +18,12 @@ const (
 
 func connect(clientId string, uri *url.URL) mqtt.Client {
 	opts := createClientOptions(clientId, uri)
+	fmt.Println(opts)
 	client := mqtt.NewClient(opts)
+	fmt.Println("CLIENT: ", client)
 	token := client.Connect()
-	for !token.WaitTimeout(3 * time.Second) {
+	fmt.Println("TOKEN: ", token)
+	for !token.WaitTimeout(30 * time.Second) {
 		fmt.Println("waiting ...")
 	}
 	if err := token.Error; err != nil {
@@ -43,8 +47,14 @@ func listen(uri *url.URL, topic string) {
 	client := connect("sub", uri)
 	fmt.Printf("client connected now listening on: [%s]\n", uri)
 	fmt.Println("Topic is : ",topic)
+	var f interface{}
 	client.Subscribe(topic, 0, func(client mqtt.Client, msg mqtt.Message) {
-		fmt.Printf("* [%s]:[%s]\n", msg.Topic(), string(msg.Payload()))
+		fmt.Printf("* [%s]:[%s]\n\n", msg.Topic(), string(msg.Payload()))
+		err := json.Unmarshal(msg.Payload(), &f)
+		if err != nil {
+			//
+		}
+		fmt.Println(f)
 	})
 }
 
