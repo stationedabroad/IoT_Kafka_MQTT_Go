@@ -36,7 +36,7 @@ const (
 	}`
 
 	topic = "owntracks/zlaaxmtf/A481FF15-8C60-4118-BE0A-9A0E6554A63C"
-	// mqtt://zlaaxmtf:_rTbTI7V_Sxm@farmer.cloudmqtt.com:31352
+	// mqtt://<username>:<password>@farmer.cloudmqtt.com:31352
 )
 
 var kafkaServers = []string{kafka1}
