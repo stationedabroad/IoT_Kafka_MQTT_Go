@@ -97,7 +97,7 @@ services:
       KSQL_LISTENERS: http://0.0.0.0:8088
       KSQL_KSQL_SERVICE_ID: sulman_01
       KSQL_CUB_KAFKA_TIMEOUT: 300
-      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8082
+      KSQL_KSQL_SCHEMA_REGISTRY_URL: http://schema-registry:8081
       # -v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v-v
       # Useful settings for development/laptop use - modify as needed for Prod
       KSQL_KSQL_COMMIT_INTERVAL_MS: 2000
