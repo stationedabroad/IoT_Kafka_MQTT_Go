@@ -10,19 +10,19 @@ import (
 )
 
 type MqttLocation struct {
-	Batt int `json:"batt"`
+	Batt int 	 `json:"batt"`
 	Long float64 `json:"lon"`
-	Acc int `json:"acc"`
-	P float64 `json:"p"`
-	BS int `json:"bs"`
-	Vac int `json:"vac"`
+	Acc  int 	 `json:"acc"`
+	P 	 float64 `json:"p"`
+	BS 	 int 	 `json:"bs"`
+	Vac  int 	 `json:"vac"`
 	Latt float64 `json:"lat"`
-	T string `json:"t"`
-	Conn string `json:"conn"`
-	Tst uint64 `json:"tst"`
-	Alt int `json:"alt"`
-	Type string `json:"_type"`
-	Tid string `json:"tid"`
+	T  	 string  `json:"t"`
+	Conn string  `json:"conn"`
+	Tst  uint64  `json:"tst"`
+	Alt  int 	 `json:"alt"`
+	Type string  `json:"_type"`
+	Tid  string  `json:"tid"`
 }
 
 type MqttReceiver struct {
@@ -34,7 +34,7 @@ func NewMqttReceiver(clientId string, uri *url.URL) *MqttReceiver {
 	fmt.Println("entered NewMqttRec ...", clientId, uri)
 	mqttClient := connect(clientId, uri)
 	if mqttClient == nil {
-		log.Fatal("Error in NEw mqtt receiever	")
+		log.Fatal("error in New mqtt receiever	")
 	}
 	log.Printf("client connected now listening on: [%s]\n", uri)
 	return &MqttReceiver{client: mqttClient, recvdMsgCount: 0}

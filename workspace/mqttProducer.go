@@ -13,12 +13,13 @@ import (
 )
 
 const (
-	kafka1 = "kafka-1:9092"
-	schemaRegServer = "schema-registry:8082"
+	kafka1 = "kafka-1:39092"
+	schemaRegServer = "http://schema-registry:8081"
 
 	schema = `{
+		"namespace": "sulman.go.com",
 		"type": "record",
-		"name": "MqttMessage",
+		"name": "mqttmessage",
 		"fields": [
 			{"name": "battery", "type": "int"},
 			{"name": "longitude", "type": "float"},
@@ -30,7 +31,7 @@ const (
 			{"name": "trigger", "type": "string"},
 			{"name": "connectivity", "type": "string"},
 			{"name": "timestamp", "type": "long"},
-			{"name": "altitiude", "type": "float"},
+			{"name": "altitude", "type": "float"},
 			{"name": "trackerId", "type": "string"}
 		]
 	}`
@@ -48,6 +49,7 @@ func main() {
 		fmt.Printf("could not create producer: %s, error: %v", kafka1, err)
 	}
 	fmt.Println(fmt.Sprintf("%T\n", *producer))
+	// fmt.Println("schemaRegCleint", *producer.producer)
 
 	// Set the mqtt listener Go'ing
 	mqttUri, err := url.Parse(os.Getenv("MQTT_URL"))
@@ -73,20 +75,26 @@ func main() {
 }
 
 func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
+	var mqttTopic = "mqtt_messages"
 	message := fmt.Sprintf(`{
-		"batteryStatus": %d,
+		"battery": %d,
 		"longitude": %f,
 		"accuracy": %d,
 		"barometricPressure": %f,
-		"bateryStatus": %d,
+		"batteryStatus": %d,
 		"verticalAccuracy": %d,
 		"latitude": %f,
-		"trigger": %s,
-		connectivity": %s,
+		"trigger": "%s",
+		"connectivity": "%s",
 		"timestamp": %v,
 		"altitude": %d,
-		"trackerId": %s
+		"trackerId": "%s"
 	}`, loc.Batt, loc.Long, loc.Acc, loc.P, loc.BS, loc.Vac, loc.Latt, loc.T, loc.Conn, loc.Tst, loc.Alt, loc.Tid)
+
 	key := time.Now().String()
-	fmt.Println(message)	
+	err := producer.Add(mqttTopic, schema, []byte(key), []byte(message))
+	if err != nil {
+		fmt.Printf("Error sending message: %v\n", err)
+	}
+	fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
 }
