@@ -64,13 +64,11 @@ func main() {
 	var mqttLocation mqtt.MqttLocation
 	for {
 		recvdMsg := <-topicChannel
-		fmt.Println(string(recvdMsg))
 		err := json.Unmarshal(recvdMsg, &mqttLocation)
 		if err != nil {
 			log.Fatalf("Unmarshalling error: %v\n", err)
 		}
 		SendMessage(producer, mqttLocation)
-		// fmt.Printf("Received message:\n%v-%v", mqttLocation.Batt, mqttLocation.Long)
 	}
 }
 
@@ -96,5 +94,6 @@ func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
 	if err != nil {
 		fmt.Printf("Error sending message: %v\n", err)
 	}
-	fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
+	// uncomment to check output in CLI
+	// fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
 }

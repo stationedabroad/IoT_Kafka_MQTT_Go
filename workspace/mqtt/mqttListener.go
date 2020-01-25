@@ -31,7 +31,6 @@ type MqttReceiver struct {
 }
 
 func NewMqttReceiver(clientId string, uri *url.URL) *MqttReceiver {
-	fmt.Println("entered NewMqttRec ...", clientId, uri)
 	mqttClient := connect(clientId, uri)
 	if mqttClient == nil {
 		log.Fatal("error in New mqtt receiever	")
@@ -50,16 +49,13 @@ func (m *MqttReceiver) Listen(topic string, recvch chan<- []byte) {
 
 func connect(clientId string, uri *url.URL) mqttp.Client {
 	opts := createClientOptions(clientId, uri)
-	// fmt.Println(opts)
 	client := mqttp.NewClient(opts)
 	token := client.Connect()
-	// fmt.Println("CLIENT: ", client)
 	for !token.WaitTimeout(3 * time.Second) {
 		fmt.Println("waiting ...")
 	}
 	if err := token.Error; err != nil {
-		// fmt.Println("Error in Connect ...")
-		// return nil
+		// need to figure this out ...
 	}
 	return client
 }
