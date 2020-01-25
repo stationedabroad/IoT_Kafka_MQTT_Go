@@ -49,7 +49,6 @@ func main() {
 		fmt.Printf("could not create producer: %s, error: %v", kafka1, err)
 	}
 	fmt.Println(fmt.Sprintf("%T\n", *producer))
-	// fmt.Println("schemaRegCleint", *producer.producer)
 
 	// Set the mqtt listener Go'ing
 	mqttUri, err := url.Parse(os.Getenv("MQTT_URL"))
