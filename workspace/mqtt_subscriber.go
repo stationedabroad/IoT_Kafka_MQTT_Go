@@ -20,9 +20,9 @@ func connect(clientId string, uri *url.URL) mqtt.Client {
 	opts := createClientOptions(clientId, uri)
 	fmt.Println(opts)
 	client := mqtt.NewClient(opts)
-	fmt.Println("CLIENT: ", client)
+	// fmt.Println("CLIENT: ", client)
 	token := client.Connect()
-	fmt.Println("TOKEN: ", token)
+	// fmt.Println("TOKEN: ", token)
 	for !token.WaitTimeout(30 * time.Second) {
 		fmt.Println("waiting ...")
 	}
@@ -64,7 +64,7 @@ func main() {
 	if err != nil {
 		fmt.Println("error entered ...", mqtt_uri)
 		log.Fatal(err)
-	}
+	}1
 
 	go listen(mqtt_uri, Topic)
 	

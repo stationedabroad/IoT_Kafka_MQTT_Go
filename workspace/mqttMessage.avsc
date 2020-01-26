@@ -1,0 +1,19 @@
+{
+		"namespace": "sulman.go.com",
+		"type": "record",
+		"name": "mqttmessage",
+		"fields": [
+			{"name": "battery", "type": "int"},
+			{"name": "longitude", "type": "float"},
+			{"name": "accuracy", "type": "int"},
+			{"name": "barometricPressure", "type": "float"},
+			{"name": "batteryStatus", "type": "int"},
+			{"name": "verticalAccuracy", "type": "int"},
+			{"name": "latitude", "type": "float"},
+			{"name": "trigger", "type": "string"},
+			{"name": "connectivity", "type": "string"},
+			{"name": "timestamp", "type": "long"},
+			{"name": "altitude", "type": "float"},
+			{"name": "trackerId", "type": "string"}
+		]
+}

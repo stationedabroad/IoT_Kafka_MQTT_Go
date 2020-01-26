@@ -93,6 +93,6 @@ func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
 	if err != nil {
 		fmt.Printf("Error sending message: %v\n", err)
 	}
-	// uncomment to check output in CLI
+	// uncomment below to check output in CLI
 	// fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
 }
