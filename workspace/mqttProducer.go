@@ -3,6 +3,7 @@ package main
 import ( 
 	"fmt"
 	"encoding/json"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -15,27 +16,6 @@ import (
 const (
 	kafka1 = "kafka-1:39092"
 	schemaRegServer = "http://schema-registry:8081"
-
-	schema = `{
-		"namespace": "sulman.go.com",
-		"type": "record",
-		"name": "mqttmessage",
-		"fields": [
-			{"name": "battery", "type": "int"},
-			{"name": "longitude", "type": "float"},
-			{"name": "accuracy", "type": "int"},
-			{"name": "barometricPressure", "type": "float"},
-			{"name": "batteryStatus", "type": "int"},
-			{"name": "verticalAccuracy", "type": "int"},
-			{"name": "latitude", "type": "float"},
-			{"name": "trigger", "type": "string"},
-			{"name": "connectivity", "type": "string"},
-			{"name": "timestamp", "type": "long"},
-			{"name": "altitude", "type": "float"},
-			{"name": "trackerId", "type": "string"}
-		]
-	}`
-
 	topic = "owntracks/zlaaxmtf/A481FF15-8C60-4118-BE0A-9A0E6554A63C"
 	// mqtt://<username>:<password>@farmer.cloudmqtt.com:31352
 )
@@ -48,8 +28,6 @@ func main() {
 	if err != nil {
 		fmt.Printf("could not create producer: %s, error: %v", kafka1, err)
 	}
-	fmt.Println(fmt.Sprintf("%T\n", *producer))
-
 	// Set the mqtt listener Go'ing
 	mqttUri, err := url.Parse(os.Getenv("MQTT_URL"))
 	if err != nil {
@@ -60,6 +38,7 @@ func main() {
 	go mqttClient.Listen(topic, topicChannel)
 
 	// Set the Kafka-receiver Go'ing
+	schema := getSchema("mqttMessage.avsc")
 	var mqttLocation mqtt.MqttLocation
 	for {
 		recvdMsg := <-topicChannel
@@ -67,11 +46,11 @@ func main() {
 		if err != nil {
 			log.Fatalf("Unmarshalling error: %v\n", err)
 		}
-		SendMessage(producer, mqttLocation)
+		SendMessage(schema, producer, mqttLocation)
 	}
 }
 
-func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
+func SendMessage(schema string, producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
 	var mqttTopic = "mqtt_messages"
 	message := fmt.Sprintf(`{
 		"battery": %d,
@@ -95,4 +74,12 @@ func SendMessage(producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
 	}
 	// uncomment below to check output in CLI
 	// fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
+}
+
+func getSchema(path string) string {
+	schema, err := ioutil.ReadFile(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return string(schema)
 }
