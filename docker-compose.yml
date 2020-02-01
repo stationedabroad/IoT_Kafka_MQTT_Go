@@ -27,7 +27,8 @@ services:
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka-1:39092,HOST://localhost:9092
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 100
-    # volumes: 
+    volumes: 
+        - ./confluent-hub:/home/cf-hub
     #   - ./data/container_data/kafka-1-data:/var/lib/kafka/data
 
   kafka-2:
@@ -118,8 +119,8 @@ services:
   # golang-server:
   #   image: golang:latest
   #   container_name: golang-server
-  #   volumes:
-      - /home/stationedabroad/Documents/confluent/mqtt-tracker:/go/bin
+    # volumes:
+      # - /home/stationedabroad/Documents/confluent/mqtt-tracker:/go/bin
     # command:
     #   - bash
     #   - -c

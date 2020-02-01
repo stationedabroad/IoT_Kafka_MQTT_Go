@@ -1,0 +1,48 @@
+// to allow write
+curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": true}'
+
+// use this one to allow writes
+curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+
+
+// add new index
+curl -XPUT 127.0.0.1:9200/movies -H "Content-Type: application/json"  -d '
+{
+        "mappings": {
+                        "properties": {
+                                "year": {
+                                        "type": "date"
+                                }                     
+                        }        
+                }        
+}'
+
+
+// a successful write
+curl -XPOST -H "Content-Type: application/json" 127.0.0.1:9200/movies/_doc/109487 -d '
+{
+        "genre": ["IMAX", "Sci-Fi"],
+        "title": "Interstellar",
+        "year": 2014
+}'
+
+// Post dockercompose UP start Golang-Kafka
+sudo docker run --name go_kafka --net=iot_kafka_mqtt_go_default --rm -it -d -v /home/stationedabroad/Documents/go/IoT_Kafka_MQTT_Go/IoT_Kafka_MQTT_Go/workspace:/go/src/workspace 0a79ece08889
+
+// KAFKA-1 create topic:
+kafka-topics --zookeeper zookeeper:2181 --topic mqtt_messages --create --partitions 3 --replication-factor 2
+
+// Confluent Schema Registry
+
+query -> curl -X GET http://localhost:8081/subjects/mqtt_messages-value/versions/
+delete -> curl -X DELETE http://localhost:8081/subjects/mqtt_messages-value/versions/4
+
+
+
+// KSQL
+print "mqtt_messages";
+show topics;
+
+ksql> create stream mqttunplugged 
+with (KAFKA_TOPIC='mqtt_messages',
+value_format='AVRO');
