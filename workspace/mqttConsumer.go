@@ -1,11 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"encoding/json"
 	"net/http"
 	"log"
-	"strings"
+	// "strings"
 
 	"github.com/stationedabroad/go-kafka-avro"
 	// "github.com/dangkaka/go-kafka-avro"
@@ -58,23 +59,36 @@ func main() {
 			// data, _ := json.Marshal(recvdMsg)
 			fmt.Printf("unmarshalled/mashalled message: (long: %f, lat: %f)\n", recvdMsg.Longitude, recvdMsg.Latitude)
 			// fmt.Println(msg.Value)
-			body := strings.NewReader(fmt.Sprintf(`-d '
-										{
-									        "timestamp": %d,
-									        "Latitude": %f,
-									        "Longitude": %f
-										}'`, recvdMsg.Timestamp, recvdMsg.Latitude, recvdMsg.Longitude))
+			// body := strings.NewReader(fmt.Sprintf(`-d '
+			// 							{
+			// 						        "Timestamp": %d,
+			// 						        "Latitude": %f,
+			// 						        "Longitude": %f
+			// 							}'`, recvdMsg.Timestamp, recvdMsg.Latitude, recvdMsg.Longitude))
+			msgByteSlice := []byte(fmt.Sprintf(`{
+											        "Timestamp": %d,
+											        "Latitude": %f,
+											        "Longitude": %f
+												}`, recvdMsg.Timestamp, recvdMsg.Latitude, recvdMsg.Longitude))
+			msgBuf := bytes.NewBuffer(msgByteSlice)										
+
 			esUrl := fmt.Sprintf("http://my_es:9200/mqtt/_doc/%d", recvdMsg.Timestamp)
-			req, err := http.NewRequest("PUT", esUrl, body)
+			// fmt.Println("Body: ", body)
+			req, err := http.NewRequest("POST", esUrl, msgBuf)
 			if err != nil {
 				fmt.Printf("could not create new request to elasticsearch: %v\n", err)
 			}
-			fmt.Println(esUrl)
 			req.Header.Set("Content-Type", "application/json")
-			resp, err := http.DefaultClient.Do(req)
+			fmt.Println("Http request: ", req)
+			client := &http.Client{}
+			resp, err := client.Do(req)
+			// resp, err := http.DefaultClient.Do(req)
 			if err != nil {
 				fmt.Printf("could not write to elasticsearch: %v\n", err)
 			}
+			var b bytes.Buffer
+			resp.Write(&b)
+			fmt.Printf("response status: %s\nBody: %s\n", resp.Status, b.String())
 			defer resp.Body.Close()
 
 		},
