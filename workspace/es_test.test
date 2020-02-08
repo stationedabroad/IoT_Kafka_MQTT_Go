@@ -6,15 +6,18 @@ curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_setti
 
 
 // add new index
-curl -XPUT 127.0.0.1:9200/movies -H "Content-Type: application/json"  -d '
+curl -XPUT 127.0.0.1:9200/mqtt -H "Content-Type: application/json"  -d '
 {
         "mappings": {
                         "properties": {
-                                "year": {
-                                        "type": "date"
-                                }                     
-                        }        
-                }        
+                                "Longitude": {
+                                        "type": "geo_point"
+                                },
+                                "Latitude": {
+                                        "type": "geo_point"
+                                }                         
+                        } 
+                }
 }'
 
 
