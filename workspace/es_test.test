@@ -45,10 +45,17 @@ value_format='AVRO');
 
 
 
+
+------------------------------------------------------------------------------------------------------------------------
 // images starts
 1) elastic search:
 
 sudo docker run -d --name my_es --net=iot_kafka_mqtt_go_default --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" 929d271f1798
+
+1b) Kibana:
+
+sudo docker run --name=kb --rm --net=iot_kafka_mqtt_go_default -d -p 5601:5601 -e ELASTICSEARCH_HOSTS=http://my_es:9200 kibana:7.5.2
+
 
 2) Golang:
 
