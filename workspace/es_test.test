@@ -5,29 +5,22 @@ curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_setti
 curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
 
 
-// add new index
+-------------------------------------------
+// ELASTIC SEARCH CONFIG
+// add new index with mapping
 curl -XPUT 127.0.0.1:9200/mqtt -H "Content-Type: application/json"  -d '
 {
-        "mappings": {
-                        "properties": {
-                                "Longitude": {
-                                        "type": "geo_point"
-                                },
-                                "Latitude": {
-                                        "type": "geo_point"
-                                }                         
-                        } 
-                }
+  "mappings": {
+    "properties": { 
+      "location": { "type": "geo_point"  }  
+    }
+  }
 }'
 
+// then allow entries
+curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
 
-// a successful write
-curl -XPOST -H "Content-Type: application/json" 127.0.0.1:9200/movies/_doc/109487 -d '
-{
-        "genre": ["IMAX", "Sci-Fi"],
-        "title": "Interstellar",
-        "year": 2014
-}'
+------------------------------------------------
 
 // Post dockercompose UP start Golang-Kafka
 sudo docker run --name go_kafka --net=iot_kafka_mqtt_go_default --rm -it -d -v /home/stationedabroad/Documents/go/IoT_Kafka_MQTT_Go/IoT_Kafka_MQTT_Go/workspace:/go/src/workspace 0a79ece08889
@@ -49,3 +42,20 @@ show topics;
 ksql> create stream mqttunplugged 
 with (KAFKA_TOPIC='mqtt_messages',
 value_format='AVRO');
+
+
+
+// images starts
+1) elastic search:
+
+sudo docker run -d --name my_es --net=iot_kafka_mqtt_go_default --rm -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" 929d271f1798
+
+2) Golang:
+
+sudo docker run --name go_kafka --net=iot_kafka_mqtt_go_default --rm -it -d -v /home/stationedabroad/Documents/go/IoT_Kafka_MQTT_Go/IoT_Kafka_MQTT_Go/workspace:/go/src/workspace 0a79ece08889
+
+3) Grafana:
+
+sudo docker run --name=grafana -d -p 3000:3000 grafana/grafana
+
+4) docker-compose up (/home/stationedabroad/Documents/go/IoT_Kafka_MQTT_Go/IoT_Kafka_MQTT_Go)

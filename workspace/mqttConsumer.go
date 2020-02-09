@@ -66,9 +66,11 @@ func main() {
 			// 						        "Longitude": %f
 			// 							}'`, recvdMsg.Timestamp, recvdMsg.Latitude, recvdMsg.Longitude))
 			msgByteSlice := []byte(fmt.Sprintf(`{
-											        "Timestamp": %d,
-											        "Latitude": %f,
-											        "Longitude": %f
+											        "timestamp": %d,
+											        "location": {
+											        				"lat": %f, 
+											        				"lon": %f
+											        			}
 												}`, recvdMsg.Timestamp, recvdMsg.Latitude, recvdMsg.Longitude))
 			msgBuf := bytes.NewBuffer(msgByteSlice)										
 
