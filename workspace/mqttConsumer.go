@@ -75,7 +75,6 @@ func main() {
 			msgBuf := bytes.NewBuffer(msgByteSlice)										
 
 			esUrl := fmt.Sprintf("http://my_es:9200/mqtt/_doc/%d", recvdMsg.Timestamp)
-			// fmt.Println("Body: ", body)
 			req, err := http.NewRequest("POST", esUrl, msgBuf)
 			if err != nil {
 				fmt.Printf("could not create new request to elasticsearch: %v\n", err)

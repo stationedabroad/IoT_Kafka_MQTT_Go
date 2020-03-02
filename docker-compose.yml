@@ -115,6 +115,50 @@ services:
     tty: true
     volumes:
       - ./data:/data
+ 
+ #  elasticsearch:
+ #    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.1
+ #    container_name: elasticsearch
+ #    ports:
+ #      - 9200:9200
+ #      - 9300:9300
+ # #  #   environment:
+ # #  #     xpack.security.enabled: "false"
+ # #  #     ES_JAVA_OPTS: "-Xms1g -Xmx1g"
+ # #  #     discovery.type: "single-node"
+ # #  #   # volumes: 
+ # #  #   #   - ./data/container_data/elasticserarch:/usr/share/elasticsearch/data
+ #    command: 
+ #      - bash 
+ #      - -c 
+ #      - |
+ #        curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
+ #        curl -XPUT 127.0.0.1:9200/mqtt -H "Content-Type: application/json"  -d '
+ #        {
+ #          "mappings": {
+ #            "properties": { 
+ #              "location": { "type": "geo_point"  }  
+ #            }
+ #          }
+ #        }'
+  #       /usr/local/bin/docker-entrypoint.sh & 
+  #       echo "Waiting for Elasticsearch to start ⏳"
+  #       while [ $$(curl -s -o /dev/null -w %{http_code} http://localhost:9200/) -eq 000 ] ; do 
+  #         echo -e $$(date) " Elasticsearch listener HTTP state: " $$(curl -s -o /dev/null -w %{http_code} http://localhost:9200/) " (waiting for != 000)"
+  #         sleep 5 
+  #       done
+
+  #       curl -XPUT "http://localhost:9200/_template/kafkaconnect/" -H 'Content-Type: application/json' -d'
+  #         {
+  #           "index_patterns": "*",
+  #           "settings": { "number_of_shards": 1, "number_of_replicas": 0 },
+  #           "mappings": { "dynamic_templates": [
+  #               { "dates": { "match": "*_TS", "mapping": { "type": "date" } } },
+  #               { "heights": { "match": "HEIGHT", "mapping": { "type": "float" } } },
+  #               { "locations": { "match": "LOCATION", "mapping": { "type": "geo_point" } } }
+  #           ] } }'        
+
+  #       sleep infinity      
 
   # golang-server:
   #   image: golang:latest
@@ -198,182 +242,4 @@ services:
   #       curl -i -X PUT -H  "Content-Type:application/json" \
   #           http://localhost:8083/connectors/source-debezium-mysql-users-00/config \
   #           -d '{
-  #                   "connector.class": "io.debezium.connector.mysql.MySqlConnector",
-  #                   "database.hostname": "mysql",
-  #                   "database.port": "3306",
-  #                   "database.user": "debezium",
-  #                   "database.password": "dbz",
-  #                   "database.server.id": "42",
-  #                   "database.server.name": "asgard",
-  #                   "table.whitelist": "demo.USERS",
-  #                   "database.history.kafka.bootstrap.servers": "kafka-1:39092",
-  #                   "database.history.kafka.topic": "dbhistory.demo" ,
-  #                   "decimal.handling.mode": "double",
-  #                   "include.schema.changes": "true",
-  #                   "transforms": "unwrap,addTopicPrefix",
-  #                   "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
-  #                   "transforms.addTopicPrefix.type":"org.apache.kafka.connect.transforms.RegexRouter",
-  #                   "transforms.addTopicPrefix.regex":"(.*)",
-  #                   "transforms.addTopicPrefix.replacement":"mysql-$$1"
-  #           }'        
-  #       sleep infinity
-
-  # replicator:
-  #   image: confluentinc/cp-enterprise-replicator:5.4.0-beta1
-  #   container_name: replicator
-  #   depends_on:
-  #     - kafka-1
-  #     - kafka-2
-  #     - kafka-3
-  #     - schema-registry
-  #   ports:
-  #     - 58083:58083
-  #   environment:
-  #     CONNECT_BOOTSTRAP_SERVERS: 'kafka-1:39092,kafka-2:49092,kafka-3:59092'
-  #     CONNECT_REST_ADVERTISED_HOST_NAME: 'replicator'
-  #     CONNECT_REST_PORT: 58083
-  #     CONNECT_GROUP_ID: compose-replicator
-  #     CONNECT_CONFIG_STORAGE_TOPIC: _replicator-configs
-  #     CONNECT_OFFSET_STORAGE_TOPIC: _replicator-offsets
-  #     CONNECT_STATUS_STORAGE_TOPIC: _replicator-status
-  #     CONNECT_KEY_CONVERTER: io.confluent.connect.avro.AvroConverter
-  #     CONNECT_KEY_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-  #     CONNECT_VALUE_CONVERTER: io.confluent.connect.avro.AvroConverter
-  #     CONNECT_VALUE_CONVERTER_SCHEMA_REGISTRY_URL: 'http://schema-registry:8081'
-  #     CONNECT_INTERNAL_KEY_CONVERTER: 'org.apache.kafka.connect.json.JsonConverter'
-  #     CONNECT_INTERNAL_VALUE_CONVERTER: 'org.apache.kafka.connect.json.JsonConverter'
-  #     CONNECT_LOG4J_ROOT_LOGLEVEL: 'INFO'
-  #     CONNECT_LOG4J_LOGGERS: 'org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR'
-  #     CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: '1'
-  #     CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: '1'
-  #     CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: '1'
-  #     CONNECT_PLUGIN_PATH: '/usr/share/java,/usr/share/confluent-hub-components/'
-  #     CONNECT_CONNECTOR_CLIENT_CONFIG_OVERRIDE_POLICY: 'All'
-
-
-  # elasticsearch:
-  #   image: docker.elastic.co/elasticsearch/elasticsearch:7.4.0
-  #   container_name: elasticsearch
-  #   ports:
-  #     - 9200:9200
-  #   environment:
-  #     xpack.security.enabled: "false"
-  #     ES_JAVA_OPTS: "-Xms1g -Xmx1g"
-  #     discovery.type: "single-node"
-  #   # volumes: 
-  #   #   - ./data/container_data/elasticserarch:/usr/share/elasticsearch/data
-  #   command: 
-  #     - bash 
-  #     - -c 
-  #     - |
-  #       /usr/local/bin/docker-entrypoint.sh & 
-  #       echo "Waiting for Elasticsearch to start ⏳"
-  #       while [ $$(curl -s -o /dev/null -w %{http_code} http://localhost:9200/) -eq 000 ] ; do 
-  #         echo -e $$(date) " Elasticsearch listener HTTP state: " $$(curl -s -o /dev/null -w %{http_code} http://localhost:9200/) " (waiting for != 000)"
-  #         sleep 5 
-  #       done
-
-  #       curl -XPUT "http://localhost:9200/_template/kafkaconnect/" -H 'Content-Type: application/json' -d'
-  #         {
-  #           "index_patterns": "*",
-  #           "settings": { "number_of_shards": 1, "number_of_replicas": 0 },
-  #           "mappings": { "dynamic_templates": [
-  #               { "dates": { "match": "*_TS", "mapping": { "type": "date" } } },
-  #               { "heights": { "match": "HEIGHT", "mapping": { "type": "float" } } },
-  #               { "locations": { "match": "LOCATION", "mapping": { "type": "geo_point" } } }
-  #           ] } }'        
-
-  #       sleep infinity
-
-
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:7.4.0
-  #   container_name: kibana
-  #   depends_on:
-  #     - elasticsearch
-  #   ports:
-  #     - 5601:5601
-  #   environment:
-  #     xpack.security.enabled: "false"
-  #     discovery.type: "single-node"
-
-    # command: 
-    #   - bash 
-    #   - -c 
-    #   - |
-    #     /usr/local/bin/kibana-docker & 
-    #     #
-    #     echo "Waiting for Kibana to start ⏳"
-    #     while : ; do
-    #       curl_status=$$(curl -s -o /dev/null -w %{http_code} http://localhost:5601/api/kibana/settings)
-    #       echo -e $$(date) " Kibana listener HTTP state: " $$curl_status " (waiting for 200)"
-    #       if [ $$curl_status -eq 200 ] ; then
-    #         break
-    #       fi
-    #       sleep 5 
-    #     done
-    #     #
-    #     echo "Waiting for Kibana API to be available ⏳"
-    #     while : ; do
-    #       kibana_status=$$(curl -s 'http://localhost:5601/api/kibana/settings')
-    #       echo -e $$(date) " Kibana API response: " $$kibana_status
-    #       if [ $$kibana_status != "Kibana server is not ready yet" ] ; then
-    #         break
-    #       fi
-    #       sleep 5 
-    #     done
-    #     #
-    #     sleep 60 
-    #     echo -e "\n--\n+> Setup Kibana objects"
-
-    #     echo -e "\n--\n+> Opt out of Kibana telemetry"
-    #     curl 'http://localhost:5601/api/telemetry/v1/optIn' -H 'kbn-xsrf: nevergonnagiveyouup' -H 'content-type: application/json' -H 'accept: application/json' --data-binary '{"enabled":false}' --compressed
-
-    #     echo -e "\n--\n+> Create Kibana index patterns"
-    #     curl -XPOST 'http://localhost:5601/api/saved_objects/index-pattern/runner_location_idx' \
-    #         -H 'kbn-xsrf: nevergonnagiveyouup' \
-    #         -H 'Content-Type: application/json' \
-    #         -d '{"attributes":{"title":"runner_location","timeFieldName":"EVENT_TS"}}'
-
-    #     curl -XPOST 'http://localhost:5601/api/saved_objects/index-pattern/runner_status_idx' \
-    #         -H 'kbn-xsrf: nevergonnagiveyouup' \
-    #         -H 'Content-Type: application/json' \
-    #         -d '{"attributes":{"title":"runner_status","timeFieldName":"EVENT_TS"}}'
-
-    #     echo -e "\n--\n+> Set default Kibana index"
-    #     curl -XPOST 'http://localhost:5601/api/kibana/settings' \
-    #         -H 'kbn-xsrf: nevergonnagiveyouup' \
-    #         -H 'content-type: application/json' \
-    #         -d '{"changes":{"defaultIndex":"runner_status_idx"}}'
-
-    #     echo -e "\n--\n+> Import Kibana objects"
-
-    #     sleep infinity
-
-  # mysql:
-  #   # *-----------------------------*
-  #   # To connect to the DB: 
-  #   #   docker-compose exec mysql bash -c 'mysql -u root -p$MYSQL_ROOT_PASSWORD'
-  #   # *-----------------------------*
-  #   image: mysql:8.0
-  #   container_name: mysql
-  #   ports:
-  #     - 3306:3306
-  #   environment:
-  #    - MYSQL_ROOT_PASSWORD=debezium
-  #    - MYSQL_USER=mysqluser
-  #    - MYSQL_PASSWORD=mysqlpw
-  #   volumes:
-  #     - ./data/ddl/users.sql:/docker-entrypoint-initdb.d/z99_dump.sql
-
-  # postgres:
-  #   # *-----------------------------*
-  #   # To connect to the DB:
-  #   #   docker-compose exec postgres bash -c 'psql -U $POSTGRES_USER $POSTGRES_DB'
-  #   # *-----------------------------*
-  #   image: postgres:11
-  #   environment:
-  #    - POSTGRES_USER=postgres
-  #    - POSTGRES_PASSWORD=postgres
-  #   volumes:
-  #    - ./data/postgres:/docker-entrypoint-initdb.d/
+  

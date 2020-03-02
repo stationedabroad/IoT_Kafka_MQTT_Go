@@ -20,6 +20,19 @@ curl -XPUT 127.0.0.1:9200/mqtt -H "Content-Type: application/json"  -d '
 // then allow entries
 curl -XPUT -H "Content-Type: application/json" http://localhost:9200/_all/_settings -d '{"index.blocks.read_only_allow_delete": null}'
 
+// test output mqtt index
+curl -XGET 127.0.0.1:9200/mqtt/_search?pretty
+
+// search for timestamp
+curl -X GET "localhost:9200/mqtt/_search?pretty" -H 'Content-Type: application/json' -d'
+{
+    "query": {
+        "match": {"timestamp": ???}
+    }
+}
+'
+
+
 ------------------------------------------------
 
 // Post dockercompose UP start Golang-Kafka
@@ -28,8 +41,10 @@ sudo docker run --name go_kafka --net=iot_kafka_mqtt_go_default --rm -it -d -v /
 // KAFKA-1 create topic:
 kafka-topics --zookeeper zookeeper:2181 --topic mqtt_messages --create --partitions 3 --replication-factor 2
 
-// Confluent Schema Registry
+// MQTT endpoint in go-kafka
+export MQTT_URL=mqtt://zlaaxmtf:_rTbTI7V_Sxm@farmer.cloudmqtt.com:31352
 
+// Confluent Schema Registry - commands
 query -> curl -X GET http://localhost:8081/subjects/mqtt_messages-value/versions/
 delete -> curl -X DELETE http://localhost:8081/subjects/mqtt_messages-value/versions/4
 
@@ -42,6 +57,11 @@ show topics;
 ksql> create stream mqttunplugged 
 with (KAFKA_TOPIC='mqtt_messages',
 value_format='AVRO');
+
+create stream time_test (timestamp bigint)
+with (kafka_topic='mqtt_messages',
+value_format='AVRO',
+timestamp='timestamp');
 
 
 
