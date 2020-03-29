@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/stationedabroad/go-kafka-avro"
+	// "github.com/pkg/errors"
 	"workspace/mqtt"
 )
 
@@ -50,8 +51,13 @@ func main() {
 	}
 }
 
-func SendMessage(schema string, producer *kafka.AvroProducer, loc mqtt.MqttLocation) {
+func SendMessage(schema string, producer *kafka.AvroProducer, loc mqtt.MqttLocation) error {
 	var mqttTopic = "mqtt_messages"
+
+	// b, err := json.Marshal(loc)
+	// if err != nil {
+	// 	return errors.Wrap(err, "marshalling json")
+	// }
 	message := fmt.Sprintf(`{
 		"battery": %d,
 		"longitude": %f,
@@ -72,6 +78,7 @@ func SendMessage(schema string, producer *kafka.AvroProducer, loc mqtt.MqttLocat
 	if err != nil {
 		fmt.Printf("Error sending message: %v\n", err)
 	}
+	return nil
 	// uncomment below to check output in CLI
 	// fmt.Printf("Message sent key: %v, msg: %s\n", key, message)	
 }
